@@ -33,7 +33,7 @@ class ToDoDetailTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         if toDoItem == nil {
-            toDoItem = ToDoItem(name: "", date: Date().addingTimeInterval(24 * 60 * 60), notes: "", reminderSet: false)
+            toDoItem = ToDoItem(name: "", date: Date().addingTimeInterval(24 * 60 * 60), notes: "", reminderSet: false, completed: false)
         }
         updateUserInterface()
 //        if reminderSwitch.isOn {
@@ -50,10 +50,12 @@ class ToDoDetailTableViewController: UITableViewController {
         reminderSwitch.isOn = toDoItem.reminderSet
         dateLabel.textColor = (reminderSwitch.isOn ? .black : .gray)
         dateLabel.text = dateFormatter.string(from: toDoItem.date)
+        datePicker.isEnabled = reminderSwitch.isOn
+        
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        toDoItem = ToDoItem(name: nameField.text!, date: datePicker.date, notes: noteView.text, reminderSet: reminderSwitch.isOn)
+        toDoItem = ToDoItem(name: nameField.text!, date: datePicker.date, notes: noteView.text, reminderSet: reminderSwitch.isOn, completed: toDoItem.completed)
     }
 
     @IBAction func cancelButtonPressed(_ sender: UIBarButtonItem) {
@@ -64,12 +66,17 @@ class ToDoDetailTableViewController: UITableViewController {
             navigationController?.popViewController(animated: true)
         }
     }
+    
     @IBAction func reminderSwitchChanged(_ sender: UISwitch) {
+        self.view.endEditing(true)
         dateLabel.textColor = (reminderSwitch.isOn ? .black : .gray)
+        datePicker.isEnabled = reminderSwitch.isOn
         tableView.beginUpdates()
         tableView.endUpdates()
     }
+    
     @IBAction func datePickerChanged(_ sender: UIDatePicker) {
+        self.view.endEditing(true)
         dateLabel.text = dateFormatter.string(from: sender.date)
     }
     
@@ -77,11 +84,12 @@ class ToDoDetailTableViewController: UITableViewController {
 }
 
 extension ToDoDetailTableViewController {
+    
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         switch indexPath {
         case datePickerIndexPath:
 //            return reminderSwitch.isOn ? datePicker.frame.height : 0
-            return reminderSwitch.isOn ? 200 : 0
+            return reminderSwitch.isOn ? datePicker.frame.height : 0
         case notesTextViewIndexPath:
 //            return notesRowHeight
             return 100
@@ -89,4 +97,6 @@ extension ToDoDetailTableViewController {
             return defaultRowHeight
         }
     }
+    
+
 }
